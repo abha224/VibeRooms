@@ -11,20 +11,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    let operation = await ai.models.generateVideos({
-      model: 'veo-3.1-fast-generate-preview',
-      prompt: prompt,
-      config: {
-        numberOfVideos: 1,
-        durationSeconds: 8,
-        resolution: '720p',
-        aspectRatio: '9:16',
-      },
-    });
+    // ── Try full Veo 3 first (highest quality) ────────────────
+    let operation;
+    let modelUsed = 'veo-3.1-generate-preview';
+    try {
+      operation = await ai.models.generateVideos({
+        model: 'veo-3.1-generate-preview',
+        prompt: prompt,
+        config: {
+          numberOfVideos: 1,
+          durationSeconds: 8,
+          resolution: '720p',
+          aspectRatio: '9:16',
+        },
+      });
+    } catch (e) {
+      console.log('Veo 3 full unavailable, trying fast variant...');
+      // ── Fallback: Veo 3.1 Fast ──────────────────────────────
+      modelUsed = 'veo-3.1-fast-generate-preview';
+      operation = await ai.models.generateVideos({
+        model: 'veo-3.1-fast-generate-preview',
+        prompt: prompt,
+        config: {
+          numberOfVideos: 1,
+          durationSeconds: 8,
+          resolution: '720p',
+          aspectRatio: '9:16',
+        },
+      });
+    }
 
-    // Poll until done (max ~60s)
+    // Poll until done (max ~90s for full quality)
     let attempts = 0;
-    while (!operation.done && attempts < 12) {
+    const maxAttempts = modelUsed === 'veo-3.1-generate-preview' ? 18 : 12;
+    while (!operation.done && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000));
       operation = await ai.operations.getVideosOperation({ operation });
       attempts++;

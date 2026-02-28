@@ -18,12 +18,12 @@ export const CATEGORIES: CategoryConfig[] = [
     label: 'Travel',
     question: 'what are you carrying from the last place you left?',
     samplePrompts: [
-      'a place that changed you without warning',
-      'the quiet before departure',
-      'somewhere you left a piece of yourself',
+      'wandering through Tokyo at 3am, neon reflections in the rain',
+      'the quiet before departure, passport in hand',
+      'a rooftop in Marrakech watching the sun melt into the medina',
       'getting lost in a city where you don\'t speak the language',
-      'the view from a train window at dawn',
-      'a stranger who felt like home',
+      'the view from a train window crossing the Swiss Alps at dawn',
+      'a stranger in a cafe in Lisbon who felt like home',
     ],
     rooms: ['the-departure', 'the-transit'],
     keywords: {
@@ -213,9 +213,9 @@ export const ROOMS: Record<string, RoomConfig> = {
       "The last thing you hear is your own footsteps."
     ],
     prompts: {
-      art: "An empty airport terminal at golden hour, long shadows, a single traveler silhouetted against floor-to-ceiling windows overlooking the tarmac, cinematic, warm and cold tones, masterpiece quality",
-      music: "Ambient electronic music with a sense of forward motion, distant airport announcements, hopeful yet melancholic, emotionally rich",
-      video: "A plane lifting off at sunset seen through rain-streaked glass, warm orange and deep blue, atmospheric, smooth cinematic camera"
+      art: "Breathtaking cinematic wide shot of a solo traveler standing at the edge of a massive airport window at golden hour, planes on the tarmac silhouetted against a burning orange and magenta sunset, dramatic volumetric light rays streaming through the glass, reflections on the polished floor, Wes Anderson symmetry meets Roger Deakins lighting, 4K masterpiece, ultra detailed",
+      music: "The feeling of leaving everything behind and stepping into the unknown, bittersweet hope, one deep breath before the journey begins",
+      video: "Cinematic slow-motion shot of a passenger jet lifting off into a golden sunset sky, camera tracking upward from behind rain-streaked terminal glass, lens flares, warm amber light mixing with cool blue shadows, atmospheric, 8K quality, smooth dolly movement"
     }
   },
   'the-transit': {
@@ -236,9 +236,9 @@ export const ROOMS: Record<string, RoomConfig> = {
       "The window shows a world you'll never enter."
     ],
     prompts: {
-      art: "A moody atmospheric train station at night, wet platforms reflecting fluorescent lights, fog rolling in, a lone figure waiting, cinematic noir, masterpiece quality",
-      music: "Lo-fi ambient with distant train sounds, rhythmic clicking on rails, meditative and suspended, high production quality",
-      video: "Landscape rushing past a rain-streaked train window at twilight, blurred lights and forests, hypnotic and serene, smooth camera"
+      art: "Atmospheric night scene of a lone figure standing on a misty European train platform, wet cobblestones reflecting warm amber platform lights and cool blue fluorescent overheads, fog rolling in from the tracks, a departing train's red tail lights fading into the distance, cinematic noir photography, Blade Runner meets Wim Wenders, 4K masterpiece, moody and contemplative",
+      music: "Waiting alone between destinations, the sound of time passing in a train station at midnight, peaceful solitude",
+      video: "Hypnotic POV shot from inside a moving train at twilight, lush green countryside and small villages blurring past a rain-streaked window, warm interior light contrasting with cool blue dusk outside, reflections of the passenger ghosted in the glass, smooth steady tracking shot, cinematic, atmospheric"
     }
   },
 
