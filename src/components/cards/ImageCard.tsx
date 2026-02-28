@@ -10,6 +10,7 @@ interface ImageCardProps {
 export default function ImageCard({ room }: ImageCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const dim = `${room.theme.text}66`;
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -21,27 +22,40 @@ export default function ImageCard({ room }: ImageCardProps) {
   }, [room]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-4">
+    <div className="h-full w-full relative overflow-hidden vibe-mono">
+      {/* Label */}
+      <div
+        className="absolute top-6 left-8 z-10 text-[11px] tracking-[0.35em] uppercase opacity-70"
+        style={{ color: room.theme.accent }}
+      >
+        {room.name} / image
+      </div>
+
+      {/* Full-bleed image / states */}
       {loading ? (
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 animate-spin opacity-20" />
-          <p className="text-[10px] uppercase tracking-widest opacity-20">Visualizing...</p>
+        <div className="h-full w-full flex flex-col items-center justify-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin opacity-30" />
+          <span className="text-[12px] tracking-[0.2em]" style={{ color: dim }}>visualizing…</span>
         </div>
       ) : imageUrl === 'FALLBACK' ? (
-        <div 
-          className="w-full h-full max-w-sm aspect-square rounded-2xl shadow-2xl" 
-          style={{ background: `linear-gradient(45deg, ${room.theme.bg}, ${room.theme.accent}44)` }}
-        />
+        <div
+          className="h-full w-full flex items-center justify-center"
+          style={{ background: `linear-gradient(135deg, ${room.theme.bg} 0%, ${room.theme.accent}18 100%)` }}
+        >
+          <span className="text-[13px]" style={{ color: dim }}>[ image ]</span>
+        </div>
       ) : (
-        <img 
-          src={imageUrl!} 
-          alt="Generated Room" 
-          className="w-full h-full max-w-sm aspect-square object-cover rounded-2xl shadow-2xl"
+        <img
+          src={imageUrl!}
+          alt="Generated Room"
+          className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
       )}
-      <div className="mt-6 text-center">
-        <span className="text-[10px] uppercase tracking-[0.3em] opacity-30">Visual Echo</span>
+
+      {/* Bottom label */}
+      <div className="absolute bottom-5 left-8 z-10 text-[11px] tracking-[0.25em]" style={{ color: dim }}>
+        gemini image
       </div>
     </div>
   );

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ROOMS } from '../lib/rooms';
-import { RoomSlug } from '../types';
 import Carousel from './Carousel';
 import EndState from './EndState';
 
@@ -33,8 +32,15 @@ export default function Room() {
   return (
     <div 
       ref={containerRef}
-      className="fixed inset-0 bg-black overflow-y-auto snap-y snap-mandatory scroll-smooth"
+      className="fixed inset-0 bg-black overflow-y-auto snap-y snap-mandatory scroll-smooth vibe-mono"
     >
+      <div className="scanline-overlay" />
+      <button
+        onClick={() => navigate('/')}
+        className="fixed left-6 top-6 z-[60] text-[10px] uppercase tracking-[0.35em] opacity-40 hover:opacity-80 transition-opacity"
+      >
+        ← exit
+      </button>
       {ROOMS.map((room) => (
         <section 
           key={room.slug}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Heart, X, SkipForward } from 'lucide-react';
 
 interface CardActionsProps {
   onLike: () => void;
@@ -10,35 +9,59 @@ interface CardActionsProps {
 
 export default function CardActions({ onLike, onDislike, onSkip, accentColor }: CardActionsProps) {
   return (
-    <div className="flex items-center justify-center gap-12 py-8">
-      <button 
+    <div className="flex items-center justify-center gap-6 py-7 vibe-mono">
+      <button
         onClick={onDislike}
-        className="group flex flex-col items-center gap-2"
+        className="w-12 h-12 rounded-full border transition-transform active:scale-95"
+        style={{ borderColor: 'rgba(255,255,255,0.18)', color: '#FF6B6B' }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = '#FF6B6B';
+          e.currentTarget.style.transform = 'scale(1.08)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+        aria-label="Dislike"
+        title="Dislike"
       >
-        <div className="p-4 rounded-full border border-white/10 hover:bg-white/5 transition-all">
-          <X className="w-5 h-5 opacity-40 group-hover:opacity-100 transition-opacity" />
-        </div>
-        <span className="text-[8px] uppercase tracking-widest opacity-20">Dislike</span>
+        <span className="text-[18px] leading-none">✕</span>
       </button>
 
-      <button 
-        onClick={onLike}
-        className="group flex flex-col items-center gap-2"
-      >
-        <div className="p-5 rounded-full border border-white/10 hover:bg-white/5 transition-all" style={{ borderColor: `${accentColor}22` }}>
-          <Heart className="w-6 h-6 opacity-40 group-hover:opacity-100 group-hover:text-red-500 transition-all" />
-        </div>
-        <span className="text-[8px] uppercase tracking-widest opacity-20">Like</span>
-      </button>
-
-      <button 
+      <button
         onClick={onSkip}
-        className="group flex flex-col items-center gap-2"
+        className="w-10 h-10 border transition-transform active:scale-95"
+        style={{ borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.35)' }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+          e.currentTarget.style.transform = 'scale(1.08)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'rgba(255,255,255,0.35)';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+        aria-label="Skip"
+        title="Skip"
       >
-        <div className="p-4 rounded-full border border-white/10 hover:bg-white/5 transition-all">
-          <SkipForward className="w-5 h-5 opacity-40 group-hover:opacity-100 transition-opacity" />
-        </div>
-        <span className="text-[8px] uppercase tracking-widest opacity-20">Skip</span>
+        <span className="text-[13px] leading-none">→</span>
+      </button>
+
+      <button
+        onClick={onLike}
+        className="w-12 h-12 rounded-full border transition-transform active:scale-95"
+        style={{ borderColor: 'rgba(255,255,255,0.18)', color: accentColor }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = accentColor;
+          e.currentTarget.style.transform = 'scale(1.08)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+        aria-label="Like"
+        title="Like"
+      >
+        <span className="text-[20px] leading-none">♡</span>
       </button>
     </div>
   );
