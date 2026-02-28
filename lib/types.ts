@@ -5,6 +5,8 @@ export type RoomSlug =
   | 'the-departure' | 'the-transit'
   // Movie rooms
   | 'the-last-row' | 'the-projector' | 'the-chase' | 'the-neon-marquee' | 'the-rewind' | 'the-fever-dream'
+  // Demo showcase rooms
+  | 'last-summer' | 'neo-noir' | 'the-signal'
   // Music rooms
   | 'the-rehearsal' | 'the-vinyl';
 
@@ -27,6 +29,12 @@ export interface RoomConfig {
     art: string;
     music: string;
     video: string;
+  };
+  /** Pre-generated static assets for instant demo loading */
+  staticAssets?: {
+    art?: string[];     // paths in /public/rooms/{slug}/
+    music?: string[];
+    video?: string[];
   };
 }
 

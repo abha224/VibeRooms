@@ -47,6 +47,10 @@ const ROOM_AXES: Record<RoomSlug, RoomAxes> = {
   'the-neon-marquee':  { primary: 'energy',     secondary: [['wonder', 0.4], ['rebellion', 0.2]] },
   'the-rewind':        { primary: 'nostalgia',  secondary: [['melancholy', 0.3], ['romance', 0.3]] },
   'the-fever-dream':   { primary: 'rebellion',  secondary: [['wonder', 0.4], ['tension', 0.3]] },
+  // Demo showcase rooms
+  'last-summer':       { primary: 'nostalgia',  secondary: [['romance', 0.4], ['wonder', 0.3]] },
+  'neo-noir':          { primary: 'tension',    secondary: [['rebellion', 0.4], ['energy', 0.3]] },
+  'the-signal':        { primary: 'wonder',     secondary: [['melancholy', 0.4], ['serenity', 0.3]] },
   // Music
   'the-rehearsal':     { primary: 'wonder',     secondary: [['energy', 0.3], ['rebellion', 0.2]] },
   'the-vinyl':         { primary: 'nostalgia',  secondary: [['romance', 0.4], ['serenity', 0.2]] },

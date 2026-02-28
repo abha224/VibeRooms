@@ -36,16 +36,19 @@ export const CATEGORIES: CategoryConfig[] = [
     label: 'Movies',
     question: 'what are you carrying from the last thing you watched?',
     samplePrompts: [
-      'a film that felt like it was made for you',
-      'watching something alone at 2am',
-      'a scene you return to without meaning to',
+      'the last normal summer before everything changed',
+      'rain-slicked streets, you trust no one',
+      'a signal from deep space, fading fast',
       'the adrenaline of a chase you can still feel',
       'a cult classic nobody else seems to get',
-      'rewinding the same VHS tape from your childhood',
+      'watching something alone at 2am',
     ],
-    rooms: ['the-last-row', 'the-projector', 'the-chase', 'the-neon-marquee', 'the-rewind', 'the-fever-dream'],
+    rooms: ['last-summer', 'neo-noir', 'the-signal', 'the-last-row', 'the-projector', 'the-chase', 'the-neon-marquee', 'the-rewind', 'the-fever-dream'],
     keywords: {
-      'the-last-row': ['alone', '2am', 'night', 'silence', 'dark', 'quiet', 'solitude', 'explain', 'cry', 'heavy', 'end', 'empty'],
+      'last-summer': ['summer', 'growing', 'change', 'youth', 'last', 'normal', 'before', 'young', 'coming', 'age', 'innocent', 'everything', 'high school', 'first', 'golden', 'sunset', 'goodbye', 'home', 'friends', 'lawn'],
+      'neo-noir': ['rain', 'dark', 'city', 'trust', 'alley', 'detective', 'noir', 'neon', 'control', 'intelligence', 'pattern', 'noticed', 'clue', 'slick', 'Hong Kong', 'shadow', 'siren', 'complex', 'analytical'],
+      'the-signal': ['space', 'signal', 'fading', 'alone', 'stars', 'isolation', 'station', 'earth', 'existential', 'philosophical', 'universe', 'cosmic', 'vast', 'distant', 'radio', 'static', 'beyond', 'deep'],
+      'the-last-row': ['alone', '2am', 'night', 'silence', 'quiet', 'solitude', 'explain', 'cry', 'heavy', 'end', 'empty', 'theater'],
       'the-projector': ['film', 'made', 'scene', 'return', 'story', 'warm', 'light', 'remember', 'less alone', 'credits', 'feeling', 'love'],
       'the-chase': ['chase', 'run', 'thriller', 'tension', 'edge', 'heart', 'fast', 'danger', 'escape', 'crime', 'adrenaline', 'pulse'],
       'the-neon-marquee': ['big', 'premiere', 'excitement', 'blockbuster', 'epic', 'action', 'spectacle', 'hero', 'adventure', 'opening', 'crowd'],
@@ -387,6 +390,90 @@ export const ROOMS: Record<string, RoomConfig> = {
       music: "Experimental electronic music with distorted vocal fragments, glitchy textures and unexpected tempo changes, rebellious and unpredictable, underground film soundtrack",
       video: "Kaleidoscopic visual patterns morphing into faces and abstract shapes, psychedelic colors pulsing and shifting, surreal and disorienting, art film aesthetic, seamless loop"
     }
+  },
+
+  // ── Demo Showcase Rooms (pre-generated) ────────────────────
+
+  'last-summer': {
+    slug: 'last-summer',
+    name: 'Last Night Before Everything Changes',
+    emotion: 'Transition',
+    colorTheme: {
+      primary: '#92400e',
+      secondary: '#d97706',
+      accent: '#fbbf24',
+      bg: '#1a1005',
+    },
+    ghostTraces: [
+      "You didn't know this was the last normal summer.",
+      "The sprinklers are still running. Nobody turned them off.",
+      "Everyone said 'see you tomorrow' like they meant forever.",
+      "The golden hour doesn't know it's ending.",
+      "You can hear the future arriving, but you're not ready yet."
+    ],
+    prompts: {
+      art: "A suburban street at golden hour, long warm shadows stretching across a quiet road, a teenager sitting on a curb looking at the sunset, lawn sprinklers catching the amber light like tiny diamonds, fireflies beginning to appear, nostalgic coming-of-age film still, shot on 35mm film, Greta Gerwig meets Terrence Malick, 4K masterpiece, emotionally devastating beauty",
+      music: "The bittersweet ache of the last perfect day before everything changes forever, a whispered goodbye to innocence",
+      video: "Cinematic golden hour shot of a quiet suburban street, warm amber sunlight streaming through trees, sprinklers creating rainbow mist on a green lawn, a bicycle leaning against a fence, fireflies appearing as dusk approaches, nostalgic 35mm film grain, slow dolly movement, coming-of-age film atmosphere"
+    },
+    staticAssets: {
+      art: ['/rooms/last-summer/art-1.png', '/rooms/last-summer/art-2.png'],
+      music: ['/rooms/last-summer/audio-1.wav'],
+    },
+  },
+
+  'neo-noir': {
+    slug: 'neo-noir',
+    name: 'Neo-Noir City — You Trust No One',
+    emotion: 'Suspicion',
+    colorTheme: {
+      primary: '#0c1e3a',
+      secondary: '#1e3a5f',
+      accent: '#ef4444',
+      bg: '#060d18',
+    },
+    ghostTraces: [
+      "You noticed what they missed.",
+      "The rain doesn't wash anything clean in this city.",
+      "Trust is just a word people use before they lie.",
+      "Every shadow has a price tag.",
+      "You've been followed since the second intersection."
+    ],
+    prompts: {
+      art: "A rain-slicked narrow alley in Hong Kong at night, dense neon signs in Chinese and English reflecting in puddles, a lone figure in a dark coat walking away, steam rising from a grate, dramatic chiaroscuro lighting with deep reds and electric blues, neo-noir meets Wong Kar-wai, Blade Runner 2049 color palette, Roger Deakins cinematography, anamorphic lens, 4K masterpiece",
+      music: "Footsteps echoing in a dark alley, tension building, you are being watched and you know it, do not trust anyone",
+      video: "Cinematic tracking shot through a rain-soaked Hong Kong alley at night, neon signs reflecting in puddles, steam rising from vents, a silhouette disappearing around a corner, shallow depth of field, anamorphic lens flares in red and blue, neo-noir thriller atmosphere, smooth steadicam movement"
+    },
+    staticAssets: {
+      // Run: node scripts/pregenerate.mjs to populate these
+    },
+  },
+
+  'the-signal': {
+    slug: 'the-signal',
+    name: 'The Signal Is Fading',
+    emotion: 'Existential Awe',
+    colorTheme: {
+      primary: '#0f172a',
+      secondary: '#1e293b',
+      accent: '#38bdf8',
+      bg: '#020617',
+    },
+    ghostTraces: [
+      "Are we alone?",
+      "The signal has been repeating for 14 billion years. Until now.",
+      "Earth looks fragile from here. Like something you could lose.",
+      "The silence of space isn't empty. It's full of questions.",
+      "You came here to find answers. You found scale instead."
+    ],
+    prompts: {
+      art: "Interior of a space station observation deck, a lone astronaut floating by a massive curved window overlooking Earth's blue curve against infinite black space, stars reflected in the visor, bioluminescent control panels casting cyan and blue light, inspired by Interstellar and 2001 A Space Odyssey, Emmanuel Lubezki lighting, existential solitude in cosmic beauty, 4K masterpiece, hyperrealistic",
+      music: "The vast silence of deep space, a fading radio signal from Earth growing quieter, existential solitude among the stars",
+      video: "Slow cinematic shot from inside a space station, camera slowly rotating to reveal Earth through a massive observation window, stars drifting past, subtle lens flare from the sun peeking around the planet's edge, interior bioluminescent panels casting soft blue light on floating objects, zero gravity dust particles, Interstellar atmosphere, smooth orbital camera movement"
+    },
+    staticAssets: {
+      // Run: node scripts/pregenerate.mjs to populate these
+    },
   },
 
   // ── Music Rooms ────────────────────────────────────────────

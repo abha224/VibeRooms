@@ -76,11 +76,16 @@ export default function RoomView({ slug }: RoomViewProps) {
   }, [slug, room]);
 
   // ─── Pre-fetch ALL Media in Parallel ─────────────────────
-  // Start fetching media for all non-text cards immediately,
-  // so content is ready before the user swipes to it.
+  // For rooms with pre-generated static assets, use those instantly.
+  // For other rooms, call Gemini APIs in parallel.
   useEffect(() => {
     if (!room || cards.length === 0 || prefetchStarted.current) return;
     prefetchStarted.current = true;
+
+    const hasStatic = room.staticAssets;
+
+    // Track which static assets we've used (round-robin)
+    const staticCounters: Record<string, number> = { art: 0, music: 0, video: 0 };
 
     const endpoints: Record<string, { url: string; promptKey: 'art' | 'music' | 'video'; responseKey: string }> = {
       art:   { url: '/api/gemini/art',   promptKey: 'art',   responseKey: 'imageUrl' },
@@ -92,6 +97,21 @@ export default function RoomView({ slug }: RoomViewProps) {
     const fetchCardMedia = async (card: CardData) => {
       if (card.type === 'text' || card.mediaUrl) return;
 
+      // ── Check for static assets first ──
+      if (hasStatic) {
+        const assetType = (card.type === 'combo' ? 'art' : card.type) as 'art' | 'music' | 'video';
+        const assets = hasStatic[assetType];
+        if (assets && assets.length > 0) {
+          const idx = staticCounters[assetType] % assets.length;
+          staticCounters[assetType]++;
+          setCards(prev => prev.map(c =>
+            c.id === card.id ? { ...c, mediaUrl: assets[idx] } : c
+          ));
+          return; // Static asset found, skip API call
+        }
+      }
+
+      // ── No static asset — call Gemini API ──
       const config = endpoints[card.type];
       if (!config) return;
 
