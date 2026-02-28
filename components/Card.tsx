@@ -27,8 +27,17 @@ export default function Card({ card, room, isActive, onLike, onDislike, onSkip }
   const heartOpacity = useTransform(x, [0, 100], [0, 1]);
   const xIconOpacity = useTransform(x, [0, -100], [0, 1]);
 
+  // Pick up pre-fetched media from RoomView when it arrives
   useEffect(() => {
-    if (isActive && !mediaUrl && card.type !== 'text') {
+    if (card.mediaUrl && !mediaUrl) {
+      setMediaUrl(card.mediaUrl);
+      setLoading(false);
+    }
+  }, [card.mediaUrl, mediaUrl]);
+
+  // Fallback: load on demand when card becomes active (if pre-fetch hasn't finished)
+  useEffect(() => {
+    if (isActive && !mediaUrl && !card.mediaUrl && card.type !== 'text') {
       loadMedia();
     }
   }, [isActive]);

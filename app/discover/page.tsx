@@ -11,18 +11,24 @@ import { cn } from '@/lib/cn';
 
 const VIBE_COLORS: Record<keyof VibeVector, string> = {
   melancholy: '#38bdf8',
-  longing: '#f472b6',
-  peace: '#4ade80',
+  wonder: '#e2e8f0',
   nostalgia: '#f59e0b',
-  awe: '#e2e8f0',
+  tension: '#ef4444',
+  energy: '#22c55e',
+  serenity: '#4ade80',
+  romance: '#f472b6',
+  rebellion: '#a855f7',
 };
 
 const VIBE_LABELS: Record<keyof VibeVector, string> = {
   melancholy: 'Melancholy',
-  longing: 'Longing',
-  peace: 'Peace',
+  wonder: 'Wonder',
   nostalgia: 'Nostalgia',
-  awe: 'Awe',
+  tension: 'Tension',
+  energy: 'Energy',
+  serenity: 'Serenity',
+  romance: 'Romance',
+  rebellion: 'Rebellion',
 };
 
 export default function DiscoverPage() {
@@ -90,6 +96,11 @@ export default function DiscoverPage() {
     );
   }
 
+  // Get top 3 vibe axes for the profile summary
+  const topVibes = (Object.entries(profile.vibeVector) as [keyof VibeVector, number][])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Vibe Profile Reveal */}
@@ -125,7 +136,7 @@ export default function DiscoverPage() {
               className="w-32 h-[1px] bg-white/20 mb-8"
             />
 
-            {/* Vibe Bars */}
+            {/* Vibe Bars — all 8 axes */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -141,7 +152,7 @@ export default function DiscoverPage() {
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${profile.vibeVector[key] * 100}%` }}
-                      transition={{ delay: 1.2 + i * 0.15, duration: 0.8 }}
+                      transition={{ delay: 1.2 + i * 0.1, duration: 0.8 }}
                       className="h-full rounded-full"
                       style={{ backgroundColor: VIBE_COLORS[key] }}
                     />
@@ -201,7 +212,7 @@ export default function DiscoverPage() {
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Mini Vibe Summary */}
+        {/* Mini Vibe Summary — top 3 axes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -453,7 +464,7 @@ function MovieCard({ rec, index, isExpanded, onToggle, delayBase }: {
                 <p className="text-sm text-zinc-300 font-light italic">&ldquo;{movie.tagline}&rdquo;</p>
                 <p className="text-xs text-zinc-500 leading-relaxed">{movie.synopsis}</p>
 
-                {/* Vibe Breakdown */}
+                {/* Vibe Breakdown — all 8 axes */}
                 <div className="space-y-1.5 pt-2">
                   <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-2">Vibe Breakdown</p>
                   {(Object.keys(movie.vibeVector) as (keyof VibeVector)[]).map(key => (

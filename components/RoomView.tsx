@@ -28,11 +28,27 @@ export default function RoomView({ slug }: RoomViewProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardEnteredAt = useRef<number>(Date.now());
+  const prefetchStarted = useRef(false);
 
   // Read the entry answer from sessionStorage (set by entry page)
   const entryAnswer = typeof window !== 'undefined'
     ? sessionStorage.getItem('viberooms_entry_answer') || ''
     : '';
+
+  // ─── Prompt Enhancement ──────────────────────────────────
+  // Injects the user's original prompt + quality suffixes for
+  // better Gemini output, personalized to what they typed.
+  const enhancePrompt = useCallback((basePrompt: string, type: 'art' | 'music' | 'video') => {
+    const ctx = entryAnswer
+      ? `, deeply inspired by the feeling of: "${entryAnswer}"`
+      : '';
+    const suffix: Record<string, string> = {
+      art: ', masterpiece quality, highly detailed, dramatic cinematic lighting, 4K ultra HD, professional concept art',
+      music: ', professional studio production, emotionally resonant, rich and immersive',
+      video: ', smooth cinematic camera movement, film grain texture, atmospheric, 8-second seamless loop',
+    };
+    return `${basePrompt}${ctx}${suffix[type]}`;
+  }, [entryAnswer]);
 
   const updatePrefs = useCallback((type: string, delta: number) => {
     setSessionPrefs(prev => ({
@@ -41,7 +57,7 @@ export default function RoomView({ slug }: RoomViewProps) {
     }));
   }, []);
 
-  // Initial card generation
+  // ─── Initial Card Generation ─────────────────────────────
   useEffect(() => {
     if (!room) return;
 
@@ -57,14 +73,57 @@ export default function RoomView({ slug }: RoomViewProps) {
 
     const introTimer = setTimeout(() => setShowIntro(false), 3000);
     return () => clearTimeout(introTimer);
-  }, [slug]);
+  }, [slug, room]);
 
-  // Track when a new card becomes active (for dwell time)
+  // ─── Pre-fetch ALL Media in Parallel ─────────────────────
+  // Start fetching media for all non-text cards immediately,
+  // so content is ready before the user swipes to it.
+  useEffect(() => {
+    if (!room || cards.length === 0 || prefetchStarted.current) return;
+    prefetchStarted.current = true;
+
+    const endpoints: Record<string, { url: string; promptKey: 'art' | 'music' | 'video'; responseKey: string }> = {
+      art:   { url: '/api/gemini/art',   promptKey: 'art',   responseKey: 'imageUrl' },
+      combo: { url: '/api/gemini/art',   promptKey: 'art',   responseKey: 'imageUrl' },
+      music: { url: '/api/gemini/audio', promptKey: 'music', responseKey: 'audioUrl' },
+      video: { url: '/api/gemini/video', promptKey: 'video', responseKey: 'videoUrl' },
+    };
+
+    const fetchCardMedia = async (card: CardData) => {
+      if (card.type === 'text' || card.mediaUrl) return;
+
+      const config = endpoints[card.type];
+      if (!config) return;
+
+      try {
+        const prompt = enhancePrompt(room.prompts[config.promptKey], config.promptKey);
+        const res = await fetch(config.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const data = await res.json();
+        const url = data[config.responseKey];
+        if (url) {
+          setCards(prev => prev.map(c =>
+            c.id === card.id ? { ...c, mediaUrl: url } : c
+          ));
+        }
+      } catch (err) {
+        console.error(`Pre-fetch failed for ${card.type} card ${card.id}:`, err);
+      }
+    };
+
+    // Fire all fetches in parallel — video (slowest) starts at same time as art (fastest)
+    cards.forEach(card => fetchCardMedia(card));
+  }, [cards.length, room, enhancePrompt]);
+
+  // ─── Dwell Time Tracking ─────────────────────────────────
   useEffect(() => {
     cardEnteredAt.current = Date.now();
   }, [currentIndex]);
 
-  // Check if onboarding is complete
+  // ─── Onboarding Complete Check ───────────────────────────
   const checkOnboardingComplete = useCallback((updatedInteractions: InteractionEvent[]) => {
     if (updatedInteractions.length >= ONBOARDING_CARD_COUNT && !isTransitioning) {
       setIsTransitioning(true);

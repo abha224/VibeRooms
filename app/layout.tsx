@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ghost Traces — VibeRooms",
-  description: "A collection of digital echoes, left behind by those who passed through the silence.",
+  title: "Vibe Rooms — Tune In",
+  description: "Discover your vibe through multimodal experiences. Travel, Movies, Music — find your room.",
 };
 
 export default function RootLayout({

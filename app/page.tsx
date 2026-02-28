@@ -3,165 +3,257 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Clock, ArrowRight } from 'lucide-react';
-import { RoomSlug } from '@/lib/types';
+import { ArrowRight } from 'lucide-react';
+import { VibeCategory, RoomSlug } from '@/lib/types';
+import { CATEGORIES, ROOMS } from '@/lib/constants';
+import { cn } from '@/lib/cn';
 
 export default function EntryExperience() {
-  const [step, setStep] = useState(0);
+  const [activeCategory, setActiveCategory] = useState<VibeCategory>('movies');
   const [answer, setAnswer] = useState('');
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [targetRoom, setTargetRoom] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
+  const category = CATEGORIES.find(c => c.id === activeCategory)!;
 
-  const getTimeOfDay = () => {
-    const hour = currentTime.getHours();
-    if (hour >= 5 && hour < 12) return 'Morning';
-    if (hour >= 12 && hour < 17) return 'Afternoon';
-    if (hour >= 17 && hour < 21) return 'Evening';
-    return 'Night';
-  };
+  // ─── Routing Logic ──────────────────────────────────────
 
-  const handleStart = () => {
-    setStep(1);
+  const routeToRoom = (input: string) => {
+    const text = input.toLowerCase();
+
+    // Score each room in this category by keyword matches
+    let bestRoom: RoomSlug = category.rooms[0];
+    let bestScore = 0;
+
+    for (const roomSlug of category.rooms) {
+      const keywords = category.keywords[roomSlug] || [];
+      let score = 0;
+      for (const kw of keywords) {
+        if (text.includes(kw)) score++;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestRoom = roomSlug;
+      }
+    }
+
+    // If no keyword matches, pick a random room from the category
+    if (bestScore === 0) {
+      bestRoom = category.rooms[Math.floor(Math.random() * category.rooms.length)];
+    }
+
+    return bestRoom;
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!answer.trim()) return;
-
-    // Rules-based routing
-    const hour = currentTime.getHours();
-    const input = answer.toLowerCase();
-
-    let slug: RoomSlug = 'echo-chamber'; // Default
-
-    if (input.includes('neon') || input.includes('city') || input.includes('light') || input.includes('rain')) {
-      slug = 'neon-solitude';
-    } else if (input.includes('forest') || input.includes('book') || input.includes('nature') || input.includes('green') || input.includes('tree')) {
-      slug = 'overgrown-library';
-    } else if (input.includes('coffee') || input.includes('food') || input.includes('old') || input.includes('warm') || input.includes('home')) {
-      slug = 'midnight-diner';
-    } else if (input.includes('star') || input.includes('space') || input.includes('universe') || input.includes('sky') || input.includes('moon')) {
-      slug = 'glass-observatory';
-    } else {
-      // Time-based fallback
-      if (hour >= 22 || hour < 4) slug = 'midnight-diner';
-      else if (hour >= 4 && hour < 10) slug = 'overgrown-library';
-      else if (hour >= 10 && hour < 16) slug = 'glass-observatory';
-      else if (hour >= 16 && hour < 22) slug = 'neon-solitude';
-    }
-
-    // Store entry answer for vibe profile
-    sessionStorage.setItem('viberooms_entry_answer', answer);
-
-    setStep(2);
-    setTimeout(() => {
-      router.push(`/rooms/${slug}`);
-    }, 2000);
+    submitAnswer(answer);
   };
 
+  const submitAnswer = (text: string) => {
+    if (!text.trim()) return;
+
+    sessionStorage.setItem('viberooms_entry_answer', text);
+    sessionStorage.setItem('viberooms_category', activeCategory);
+
+    const slug = routeToRoom(text);
+    setTargetRoom(ROOMS[slug]?.name || slug);
+    setIsTransitioning(true);
+
+    setTimeout(() => {
+      router.push(`/rooms/${slug}`);
+    }, 2200);
+  };
+
+  const handleSampleClick = (prompt: string) => {
+    setAnswer(prompt);
+    submitAnswer(prompt);
+  };
+
+  // Room names for the bottom bar
+  const allRoomNames = CATEGORIES.flatMap(c =>
+    c.rooms.map(slug => ROOMS[slug]?.name || slug)
+  );
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 overflow-hidden relative">
-      {/* Atmospheric Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '700ms' }} />
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col relative overflow-hidden">
+      {/* Subtle atmospheric glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-rose-500/[0.03] rounded-full blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-500/[0.03] rounded-full blur-[120px]" />
       </div>
 
-      <AnimatePresence mode="wait">
-        {step === 0 && (
+      {/* Transition Overlay */}
+      <AnimatePresence>
+        {isTransitioning && (
           <motion.div
-            key="intro"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="text-center z-10 max-w-md"
-          >
-            <h1 className="text-5xl font-light tracking-tighter mb-4 serif italic">Ghost Traces</h1>
-            <p className="text-zinc-400 mb-8 font-light leading-relaxed">
-              A collection of digital echoes, left behind by those who passed through the silence.
-            </p>
-            <button
-              onClick={handleStart}
-              className="group flex items-center gap-2 mx-auto px-8 py-3 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all duration-500"
-            >
-              Enter the Silence
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </motion.div>
-        )}
-
-        {step === 1 && (
-          <motion.div
-            key="prompt"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            className="z-10 w-full max-w-lg"
-          >
-            <div className="mb-12 flex items-center justify-between text-xs uppercase tracking-widest text-zinc-500 font-medium">
-              <div className="flex items-center gap-2">
-                <Clock className="w-3 h-3" />
-                {getTimeOfDay()} — {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-3 h-3" />
-                Seeding Context
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <label className="block">
-                <span className="block text-2xl font-light mb-6 leading-tight">
-                  What is a memory you haven&apos;t thought about in years?
-                </span>
-                <input
-                  autoFocus
-                  type="text"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="Type your answer..."
-                  className="w-full bg-transparent border-b border-white/20 py-4 text-xl focus:outline-none focus:border-white transition-colors placeholder:text-zinc-700"
-                />
-              </label>
-              <button
-                type="submit"
-                disabled={!answer.trim()}
-                className="w-full py-4 rounded-xl bg-white text-black font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Continue
-              </button>
-            </form>
-          </motion.div>
-        )}
-
-        {step === 2 && (
-          <motion.div
-            key="transition"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center z-10"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black"
           >
             <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 1, 0.5],
-              }}
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-24 h-24 rounded-full border border-white/20 mx-auto mb-8 flex items-center justify-center"
+              className="w-20 h-20 rounded-full border border-white/20 flex items-center justify-center mb-8"
             >
               <div className="w-2 h-2 bg-white rounded-full" />
             </motion.div>
-            <p className="text-sm uppercase tracking-[0.3em] font-light text-zinc-400">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-sm uppercase tracking-[0.3em] font-light text-zinc-400"
+            >
               Finding your room...
-            </p>
+            </motion.p>
+            {targetRoom && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.3 }}
+                transition={{ delay: 1 }}
+                className="mt-3 text-xs text-zinc-600 font-light tracking-widest"
+              >
+                {targetRoom}
+              </motion.p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col max-w-5xl w-full mx-auto px-6 sm:px-10 py-12 sm:py-16 relative z-10">
+        {/* Branding */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="mb-10 sm:mb-16"
+        >
+          <p className="text-[11px] uppercase tracking-[0.4em] text-zinc-600 font-medium mb-6">
+            Vibe Rooms
+          </p>
+          <h1 className="text-6xl sm:text-8xl font-bold tracking-tighter leading-[0.85] text-white">
+            TUNE IN
+          </h1>
+        </motion.div>
+
+        {/* Category Tabs */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center gap-8 mb-10 sm:mb-14"
+        >
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => { setActiveCategory(cat.id); setAnswer(''); }}
+              className="relative group"
+            >
+              <span className={cn(
+                "text-xs sm:text-sm uppercase tracking-[0.3em] font-medium transition-colors duration-300",
+                activeCategory === cat.id ? "text-white" : "text-zinc-600 hover:text-zinc-400"
+              )}>
+                {cat.label}
+              </span>
+              {activeCategory === cat.id && (
+                <motion.div
+                  layoutId="categoryUnderline"
+                  className="absolute -bottom-2 left-0 right-0 h-[2px] bg-rose-500"
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Sample Prompts */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="text-[10px] uppercase tracking-[0.35em] text-rose-500/80 font-medium mb-5">
+              Try one of these
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-3 mb-8">
+              {category.samplePrompts.map((prompt, i) => (
+                <motion.button
+                  key={prompt}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.05 * i }}
+                  onClick={() => handleSampleClick(prompt)}
+                  className="text-left group flex items-start gap-2 py-1"
+                >
+                  <span className="text-zinc-600 text-sm mt-0.5 group-hover:text-rose-500/60 transition-colors">›</span>
+                  <span className="text-sm text-zinc-500 font-light group-hover:text-zinc-200 transition-colors duration-200 leading-relaxed">
+                    {prompt}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Full question */}
+            <p className="text-sm text-zinc-500 font-light mb-10">
+              › {category.question}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Free Text Input */}
+        <form onSubmit={handleSubmit} className="mt-auto">
+          <div className="relative mb-6">
+            <input
+              type="text"
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              placeholder="or type anything..."
+              className="w-full bg-transparent border-b border-white/10 py-4 text-lg sm:text-xl font-light text-white focus:outline-none focus:border-white/30 transition-colors placeholder:text-zinc-700 tracking-wide"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={!answer.trim()}
+            className={cn(
+              "group flex items-center gap-3 text-sm uppercase tracking-[0.25em] font-medium transition-all duration-300",
+              answer.trim()
+                ? "text-white hover:text-zinc-300"
+                : "text-zinc-700 cursor-not-allowed"
+            )}
+          >
+            Find my room
+            <ArrowRight className={cn(
+              "w-4 h-4 transition-transform",
+              answer.trim() && "group-hover:translate-x-1"
+            )} />
+          </button>
+        </form>
+
+        {/* Room Names Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-12 sm:mt-16 flex flex-wrap items-center gap-x-6 gap-y-2"
+        >
+          {allRoomNames.map(name => (
+            <span
+              key={name}
+              className="text-[10px] uppercase tracking-[0.3em] text-zinc-700 font-medium"
+            >
+              {name}
+            </span>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,14 @@
-export type RoomSlug = 'echo-chamber' | 'neon-solitude' | 'overgrown-library' | 'midnight-diner' | 'glass-observatory';
+export type RoomSlug =
+  // Legacy rooms
+  | 'echo-chamber' | 'neon-solitude' | 'overgrown-library' | 'midnight-diner' | 'glass-observatory'
+  // Travel rooms
+  | 'the-departure' | 'the-transit'
+  // Movie rooms
+  | 'the-last-row' | 'the-projector' | 'the-chase' | 'the-neon-marquee' | 'the-rewind' | 'the-fever-dream'
+  // Music rooms
+  | 'the-rehearsal' | 'the-vinyl';
+
+export type VibeCategory = 'travel' | 'movies' | 'music';
 
 export type CardType = 'art' | 'music' | 'video' | 'text' | 'combo';
 
@@ -41,13 +51,16 @@ export interface SessionPrefs {
 
 // ─── Vibe Metrics ───────────────────────────────────────────
 
-/** 5-axis emotional vibe vector (0-1 each) */
+/** 8-axis emotional vibe vector (0-1 each) */
 export interface VibeVector {
-  melancholy: number;   // echo-chamber
-  longing: number;      // neon-solitude
-  peace: number;        // overgrown-library
-  nostalgia: number;    // midnight-diner
-  awe: number;          // glass-observatory
+  melancholy: number;   // sadness, depth, introspection
+  wonder: number;       // awe, discovery, curiosity
+  nostalgia: number;    // warmth, memory, comfort
+  tension: number;      // suspense, edge, intensity
+  energy: number;       // excitement, adventure, rhythm
+  serenity: number;     // peace, calm, stillness
+  romance: number;      // longing, love, intimacy
+  rebellion: number;    // defiance, rawness, independence
 }
 
 /** Content modality affinity (0-1 each) */

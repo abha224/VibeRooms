@@ -14,20 +14,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const room = ROOMS[slug];
 
   if (!room) {
-    return { title: 'Room Not Found — Ghost Traces' };
+    return { title: 'Room Not Found — Vibe Rooms' };
   }
 
   return {
-    title: `${room.name} — Ghost Traces`,
-    description: `Experience ${room.emotion.toLowerCase()} in ${room.name}. A digital echo chamber.`,
+    title: `${room.name} — Vibe Rooms`,
+    description: `Experience ${room.emotion.toLowerCase()} in ${room.name}. Tune in to your vibe.`,
     openGraph: {
-      title: `${room.name} — Ghost Traces`,
+      title: `${room.name} — Vibe Rooms`,
       description: `Experience ${room.emotion.toLowerCase()} in ${room.name}.`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${room.name} — Ghost Traces`,
+      title: `${room.name} — Vibe Rooms`,
       description: `Experience ${room.emotion.toLowerCase()} in ${room.name}.`,
     },
   };
