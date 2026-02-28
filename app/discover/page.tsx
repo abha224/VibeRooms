@@ -3,10 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Play, Star, Clock, Film, Sparkles, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Play, Star, Clock, Film, Sparkles, RotateCcw, Users, ChevronDown, Search } from 'lucide-react';
 import { VibeProfile, VibeVector, MovieRecommendation } from '@/lib/types';
 import { loadVibeProfile, clearVibeProfile } from '@/lib/vibe-metrics';
-import { getRecommendations } from '@/lib/movies';
+import { getRecommendations, getAllGenres } from '@/lib/movies';
 import { cn } from '@/lib/cn';
 
 const VIBE_COLORS: Record<keyof VibeVector, string> = {
@@ -28,10 +28,12 @@ const VIBE_LABELS: Record<keyof VibeVector, string> = {
 export default function DiscoverPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<VibeProfile | null>(null);
-  const [recommendations, setRecommendations] = useState<MovieRecommendation[]>([]);
+  const [allRecommendations, setAllRecommendations] = useState<MovieRecommendation[]>([]);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [showProfile, setShowProfile] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [expandedMovie, setExpandedMovie] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loaded = loadVibeProfile();
@@ -40,26 +42,38 @@ export default function DiscoverPage() {
       return;
     }
     setProfile(loaded);
-    setRecommendations(getRecommendations(loaded, 12));
+    setAllRecommendations(getRecommendations(loaded, 500)); // Load all 500
 
     // Reveal recommendations after profile display
     const timer = setTimeout(() => setShowProfile(false), 4000);
     return () => clearTimeout(timer);
   }, [router]);
 
-  const genres = useMemo(() => {
-    if (!recommendations.length) return [];
-    const all = new Set<string>();
-    recommendations.forEach(r => r.movie.genres.forEach(g => all.add(g)));
-    return Array.from(all).sort();
-  }, [recommendations]);
+  const genres = useMemo(() => getAllGenres(), []);
 
   const filteredRecs = useMemo(() => {
-    if (!selectedGenre) return recommendations;
-    return recommendations.filter(r =>
-      r.movie.genres.some(g => g.toLowerCase() === selectedGenre.toLowerCase())
-    );
-  }, [recommendations, selectedGenre]);
+    let recs = allRecommendations;
+
+    if (selectedGenre) {
+      recs = recs.filter(r =>
+        r.movie.genres.some(g => g.toLowerCase() === selectedGenre.toLowerCase())
+      );
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      recs = recs.filter(r =>
+        r.movie.title.toLowerCase().includes(q) ||
+        r.movie.director.toLowerCase().includes(q) ||
+        r.movie.cast.some(c => c.toLowerCase().includes(q))
+      );
+    }
+
+    return recs;
+  }, [allRecommendations, selectedGenre, searchQuery]);
+
+  const visibleRecs = filteredRecs.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredRecs.length;
 
   const handleRetake = () => {
     clearVibeProfile();
@@ -210,6 +224,30 @@ export default function DiscoverPage() {
           </div>
         </motion.div>
 
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: showProfile ? 4.7 : 0.15 }}
+          className="mb-6"
+        >
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => { setSearchQuery(e.target.value); setVisibleCount(12); }}
+              placeholder="Search movies, directors, actors..."
+              className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-colors"
+            />
+            {searchQuery && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
+                {filteredRecs.length} results
+              </span>
+            )}
+          </div>
+        </motion.div>
+
         {/* Genre Filter */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -218,7 +256,7 @@ export default function DiscoverPage() {
           className="mb-8 flex flex-wrap gap-2"
         >
           <button
-            onClick={() => setSelectedGenre(null)}
+            onClick={() => { setSelectedGenre(null); setVisibleCount(12); }}
             className={cn(
               "px-4 py-1.5 rounded-full text-xs uppercase tracking-widest transition-all border",
               !selectedGenre
@@ -231,7 +269,7 @@ export default function DiscoverPage() {
           {genres.map(genre => (
             <button
               key={genre}
-              onClick={() => setSelectedGenre(selectedGenre === genre ? null : genre)}
+              onClick={() => { setSelectedGenre(selectedGenre === genre ? null : genre); setVisibleCount(12); }}
               className={cn(
                 "px-4 py-1.5 rounded-full text-xs uppercase tracking-widest transition-all border",
                 selectedGenre === genre
@@ -251,7 +289,7 @@ export default function DiscoverPage() {
           transition={{ delay: showProfile ? 5 : 0.4 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {filteredRecs.map((rec, i) => (
+          {visibleRecs.map((rec, i) => (
             <MovieCard
               key={rec.movie.id}
               rec={rec}
@@ -265,11 +303,28 @@ export default function DiscoverPage() {
           ))}
         </motion.div>
 
+        {hasMore && (
+          <div className="flex justify-center mt-8 mb-4">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 12)}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 transition-all text-sm"
+            >
+              <ChevronDown className="w-4 h-4" />
+              Load More ({filteredRecs.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
+
         {filteredRecs.length === 0 && (
           <div className="text-center py-20">
             <p className="text-zinc-500 text-sm italic">No movies match this filter with your vibe.</p>
           </div>
         )}
+
+        {/* Dataset Attribution */}
+        <div className="mt-16 mb-8 text-center text-[10px] text-zinc-700 uppercase tracking-widest">
+          Powered by IMDb Non-Commercial Datasets · {allRecommendations.length} films analyzed
+        </div>
       </div>
     </div>
   );
@@ -368,13 +423,19 @@ function MovieCard({ rec, index, isExpanded, onToggle, delayBase }: {
             <Star className="w-3 h-3 text-yellow-500" />
             <span>{movie.imdbRating}</span>
           </div>
+          {movie.numVotes && (
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              <span>{(movie.numVotes / 1000).toFixed(0)}k</span>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
             <span>{movie.runtime}m</span>
           </div>
           <div className="flex items-center gap-1">
             <Film className="w-3 h-3" />
-            <span>{movie.cast[0]}</span>
+            <span>{movie.cast?.[0] || 'Unknown'}</span>
           </div>
         </div>
 

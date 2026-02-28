@@ -88,6 +88,7 @@ export interface Movie {
   director: string;
   genres: string[];
   imdbRating: number;
+  numVotes?: number;
   tagline: string;
   synopsis: string;
   vibeVector: VibeVector;
