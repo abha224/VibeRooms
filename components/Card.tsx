@@ -74,10 +74,8 @@ export default function Card({ card, room, isActive, onLike, onDislike, onSkip }
   const handleDragEnd = (_: any, info: any) => {
     if (info.offset.x > 100) {
       onLike();
-      onSkip();
     } else if (info.offset.x < -100) {
       onDislike();
-      onSkip();
     }
   };
 
@@ -129,7 +127,7 @@ export default function Card({ card, room, isActive, onLike, onDislike, onSkip }
       {/* Bottom Controls */}
       <div className="absolute bottom-12 left-0 right-0 z-30 flex justify-center items-center gap-8 px-6">
         <button
-          onClick={() => { onDislike(); onSkip(); }}
+          onClick={onDislike}
           className="w-14 h-14 rounded-full border border-white/10 bg-black/20 backdrop-blur-xl flex items-center justify-center text-white/60 hover:text-rose-400 hover:border-rose-400/50 transition-all"
         >
           <X className="w-6 h-6" />
@@ -141,7 +139,7 @@ export default function Card({ card, room, isActive, onLike, onDislike, onSkip }
           <ChevronRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
         </button>
         <button
-          onClick={() => { onLike(); onSkip(); }}
+          onClick={onLike}
           className="w-14 h-14 rounded-full border border-white/10 bg-black/20 backdrop-blur-xl flex items-center justify-center text-white/60 hover:text-emerald-400 hover:border-emerald-400/50 transition-all"
         >
           <Heart className={cn("w-6 h-6", card.liked && "fill-emerald-400 text-emerald-400")} />

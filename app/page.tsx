@@ -55,6 +55,9 @@ export default function EntryExperience() {
       else if (hour >= 16 && hour < 22) slug = 'neon-solitude';
     }
 
+    // Store entry answer for vibe profile
+    sessionStorage.setItem('viberooms_entry_answer', answer);
+
     setStep(2);
     setTimeout(() => {
       router.push(`/rooms/${slug}`);
