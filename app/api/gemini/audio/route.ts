@@ -52,12 +52,12 @@ export async function POST(request: NextRequest) {
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
-      contents: [{ parts: [{ text: `Whisper this very slowly in 5 words or fewer: ${prompt}` }] }],
+      contents: [{ parts: [{ text: `Speak this with deep emotion, slowly, like a whispered secret: ${prompt}` }] }],
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' },
+            prebuiltVoiceConfig: { voiceName: 'Aoede' }, // Ethereal, atmospheric voice
           },
         },
       },

@@ -11,6 +11,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
+    // ── Try Imagen 4 Ultra first (best image quality available) ──
+    try {
+      const response = await ai.models.generateImages({
+        model: 'imagen-4-ultra-generate',
+        prompt: prompt,
+        config: {
+          numberOfImages: 1,
+          aspectRatio: '9:16',
+        },
+      });
+
+      const imageData = (response as any).generatedImages?.[0]?.image?.imageBytes;
+      if (imageData) {
+        return NextResponse.json({ imageUrl: `data:image/png;base64,${imageData}` });
+      }
+    } catch (e) {
+      console.log('Imagen 4 Ultra unavailable, trying Imagen 4...');
+    }
+
+    // ── Try Imagen 4 standard ────────────────────────────────────
+    try {
+      const response = await ai.models.generateImages({
+        model: 'imagen-4-generate',
+        prompt: prompt,
+        config: {
+          numberOfImages: 1,
+          aspectRatio: '9:16',
+        },
+      });
+
+      const imageData = (response as any).generatedImages?.[0]?.image?.imageBytes;
+      if (imageData) {
+        return NextResponse.json({ imageUrl: `data:image/png;base64,${imageData}` });
+      }
+    } catch (e) {
+      console.log('Imagen 4 unavailable, falling back to Gemini Flash Image');
+    }
+
+    // ── Fallback: Gemini 2.5 Flash Image (reliable) ──────────────
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {

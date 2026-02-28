@@ -7,6 +7,7 @@ const ai = new GoogleGenAI({ apiKey });
 /**
  * Generates a short atmospheric art image for a movie recommendation.
  * Used on the discover page to visualize the movie's vibe.
+ * Tries Imagen 4 first, then falls back to Gemini Flash Image.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +17,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    const enhancedPrompt = `Cinematic movie poster atmosphere: ${prompt}. Film: ${movieTitle || 'unknown'}. Dark, moody, atmospheric, 9:16 aspect ratio, high quality`;
+    const enhancedPrompt = `Cinematic movie poster atmosphere for "${movieTitle || 'a film'}": ${prompt}. Dark, moody, atmospheric, dramatic lighting, film grain, masterpiece quality, 4K`;
 
+    // ── Try Imagen 4 first ────────────────────────────────────
+    try {
+      const response = await ai.models.generateImages({
+        model: 'imagen-4-generate',
+        prompt: enhancedPrompt,
+        config: {
+          numberOfImages: 1,
+          aspectRatio: '9:16',
+        },
+      });
+
+      const imageData = (response as any).generatedImages?.[0]?.image?.imageBytes;
+      if (imageData) {
+        return NextResponse.json({ imageUrl: `data:image/png;base64,${imageData}` });
+      }
+    } catch (e) {
+      console.log('Imagen 4 unavailable for atmosphere, falling back...');
+    }
+
+    // ── Fallback: Gemini Flash Image ──────────────────────────
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: [{ parts: [{ text: enhancedPrompt }] }],
